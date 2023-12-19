@@ -116,6 +116,16 @@ DISTINCT TrackId
 From InvoiceLine
 Order by TrackId)
 
+-- Problem - Group artists by their track count by genre
+
+SELECT art.Name, a.Title, g.Name, count(t.GenreId) as track_count
+FROM Track as t
+JOIN Album as a ON t.AlbumId = a.AlbumId
+JOIN Artist as art ON a.ArtistId = art.ArtistId
+JOIN Genre as g ON t.GenreId = g.GenreId
+Group BY art.Name
+ORDER by art.name ASC
+
 -- DML - Data Manipulation Language 
 
 -- Inserting new data into the database
