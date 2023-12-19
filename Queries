@@ -1,0 +1,138 @@
+-- Problem - Return a report with artist name, artist ID and count of albums 
+
+SELECT art.Name, a.ArtistId, count(art.name) as Albums
+FROM Artist Art
+JOIN Album a ON a.ArtistId = Art.ArtistId
+GROUP BY art.Name
+ORDER BY Albums Desc
+
+-- Problem - Billing city starting with P or D
+
+SELECT InvoiceDate, BillingCity, BillingAddress, total
+FROM Invoice as i
+WHERE BillingCity LIKE 'P%' OR BillingCity LIKE 'D%'
+ORDER BY BillingCity ASC
+
+-- Problem - Segmenting data by categories using CASE
+
+SELECT InvoiceDate, BillingCity, BillingAddress, Total,
+CASE 
+WHEN total < 2.00 THEN 'Baseline Purchase'
+WHEN total BETWEEN 2.00 AND 6.99 THEN 'Low Pucrchase'
+WHEN total BETWEEN 7.00 AND 15.00 THEN 'Target Purchase'
+ELSE 'Top Performer'
+END as PurchaseType
+FROM Invoice
+ORDER BY BillingCity
+
+-- Problem - What employees are responsible for the 10 highest individual sales?
+
+SELECT e.FirstName, e.LastName, c.SupportRepId, c.CustomerId, c.FirstName, c.LastName, i.total
+FROM employee AS e
+JOIN Customer as c ON c.SupportRepId = e.EmployeeId
+JOIN Invoice as i ON i.CustomerId = c.CustomerId
+ORDER BY i.total DESC
+LIMIT 10
+
+-- Problem - Find the average customer spend by billing city - filtered by cities with an average higher than 6
+
+SELECT 
+BillingCity,
+ROUND(AVG(Total),2) as Avg_Sale
+FROM Invoice
+GROUP by BillingCity
+HAVING Avg_Sale > 6
+ORDER BY Avg_Sale DESC
+
+-- Problem - Find the average customer spend by billing city - filtered by cities with an average higher than 6 and city name that starts with B
+
+SELECT 
+BillingCity,
+ROUND(AVG(Total),2) as Avg_Sale
+FROM Invoice
+WHERE BillingCity LIKE 'B%'
+GROUP by BillingCity
+HAVING Avg_Sale > 6
+ORDER BY Avg_Sale DESC
+
+-- Problem - Find the average customer spend by billing city - filtered by country and city
+
+SELECT 
+BillingCountry, BillingCity,
+ROUND(AVG(Total),2) as Avg_Sale
+FROM Invoice
+GROUP by BillingCountry, BillingCity
+ORDER BY BillingCountry ASC
+
+-- Problem - Show Invoices with less than the average invoice total - SUBQUERY
+
+SELECT 
+InvoiceDate, BillingAddress, BillingCity, Total
+FROM Invoice
+WHERE total < 
+(SELECT AVG(Total)
+FROM Invoice)
+ORDER BY total DESC
+
+-- Problem  - How is each individual cities average sales compare to the global average - Aggregated subquery
+
+SELECT 
+BillingCountry, BillingCity, ROUND(AVG(Total),2) as [city avg],
+(SELECT ROUND(AVG(total),2)
+FROM Invoice) as global_avg
+FROM Invoice
+GROUP by BillingCity
+ORDER BY [city avg] Desc
+
+-- Problem - Non-aggregate subquery
+
+SELECT
+InvoiceDate, BillingAddress, BillingCity
+FROM Invoice
+Where InvoiceDate >
+(SELECT 
+InvoiceDate
+FROM Invoice
+WHERE InvoiceId = 251)
+
+-- Problem - IN clause subquery
+
+SELECT
+InvoiceDate, BillingAddress, BillingCity, InvoiceId
+FROM Invoice
+Where InvoiceDate IN
+(SELECT 
+InvoiceDate
+FROM Invoice
+WHERE InvoiceId IN( 251,252,254))
+
+-- Problem - Identifying data that is distinctly missing from another data - Tracks that are not selling in this music database
+
+SELECT TrackId, Composer, Name
+FROM Track
+WHERE TrackId NOT IN(
+SELECT 
+DISTINCT TrackId
+From InvoiceLine
+Order by TrackId)
+
+-- DML - Data Manipulation Language 
+
+-- Inserting new data into the database
+
+INSERT INTO 
+Artist (Name)
+VALUES (‘Pizduke’)
+
+-- Update data in database
+
+UPDATE 
+Artist
+SET Name = 'Pizdyuke'
+WHERE ArtistId = 276
+
+-- Deleting data from record
+
+DELETE FROM
+Artist
+WHERE ArtistId = 276
